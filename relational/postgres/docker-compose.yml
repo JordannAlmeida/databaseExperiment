@@ -11,6 +11,7 @@ services:
       POSTGRES_DB: mydb
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    command: ["postgres", "-c", "shared_preload_libraries=pg_stat_statements"]
     healthcheck:
       test: ["CMD", "pg_health", "-h", "localhost", "-p", "5432", "-U", "postgres"]
       interval: 10s
