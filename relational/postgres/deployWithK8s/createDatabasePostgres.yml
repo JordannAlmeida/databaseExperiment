@@ -5,8 +5,14 @@ metadata:
 spec:
   capacity:
     storage: 5Gi #in production environenmt consider making more memory available
+  volumeMode: Filesystem
+  persistentVolumeReclaimPolicy: Retain
   accessModes:
     - ReadWriteOnce #consider using ReadWriteMany for high avaliable clusters
+  #in local (dev) usage
+  storageClassName: manual
+  hostPath:
+    path: ~/postgres
   # in production consider using a EBS (AWS)
   # csi:
   #   driver: ebs.csi.aws.com
@@ -34,7 +40,6 @@ kind: Secret
 metadata:
   name: postgres-credentials
 type: Opaque
-
 data:
   password: '123456IsHorriblePass' #USE A STRONG PASSWORD HERE
 
@@ -75,13 +80,15 @@ spec:
           mountPath: /docker-entrypoint-initdb.d
         - name: postgres-config
           mountPath: /etc/postgresql
+        - name: postgres-config-hba
+          mountPath: /etc/postgresql/hba
         env:
         - name: POSTGRES_PASSWORD
           valueFrom:
             secretKeyRef:
               name: postgres-credentials
               key: password
-        - name: POSTGRES_USER
+        - name: DB_HOST
           value: postgres
         resources: #in production environment consider using more memory and cpu
           requests:
@@ -128,6 +135,9 @@ spec:
       - name: postgres-config
         configMap:
           name: my-postgres-config
+      - name: postgres-config-hba
+        configMap:
+          name: my-pg-hba-config
 
 
 ---

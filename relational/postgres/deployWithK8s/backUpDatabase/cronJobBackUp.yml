@@ -1,0 +1,40 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: postgres-backup
+spec:
+  schedule: "0 1 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: postgres-backup
+              image: mypostgresbackup:latest
+              imagePullPolicy: Never #use image local
+              volumeMounts:
+                - name: backup-volume
+                  mountPath: /backup
+                - name: aws-config
+                  mountPath: /root/.aws
+              env:
+                - name: DB_HOST
+                  value: postgres-service.default.svc.cluster.local
+                - name: DB_PORT
+                  value: '5432'
+                - name: DB_NAME
+                  value: postgres
+                - name: DB_USER
+                  value: postgres
+                - name: S3_BUCKET
+                  value: my-s3-bucket
+                - name: BACKUP_FILE
+                  value: /tmp/backup.sql.gz
+          restartPolicy: OnFailure
+          volumes:
+            - name: backup-volume
+              emptyDir: {}
+            - name: aws-config
+              secret:
+                secretName: aws-config-secret 
+  successfulJobsHistoryLimit: 1

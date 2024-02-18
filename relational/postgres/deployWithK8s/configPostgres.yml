@@ -4,6 +4,8 @@ metadata:
   name: my-postgres-config
 data:
   postgresql.conf: |-
+    # you can obtain this running: docker run -i --rm postgres cat /usr/share/postgresql/postgresql.conf.sample > my-postgres.conf
+    # After that, edit and put content here:
     # -----------------------------
     # PostgreSQL configuration file
     # -----------------------------
@@ -47,7 +49,7 @@ data:
 
     #data_directory = 'ConfigDir'		# use data in another directory
               # (change requires restart)
-    #hba_file = 'ConfigDir/pg_hba.conf'	# host-based authentication file
+    hba_file = '/etc/postgresql/hba/pg_hba.conf'	# host-based authentication file
               # (change requires restart)
     #ident_file = 'ConfigDir/pg_ident.conf'	# ident configuration file
               # (change requires restart)
